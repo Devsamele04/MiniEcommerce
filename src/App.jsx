@@ -5,11 +5,20 @@ const App = () => {
   const [product, setproduct] = useState([]);
   const [cartData, setcartData] = useState([]);
   const [count, setcount] = useState(0);
+  const [total, settotal] = useState(0);
 
   const GetData = async () => {
     const response = await axios.get("https://fakestoreapi.com/products");
     console.log(response.data);
     setproduct(response.data);
+  };
+
+  const totalamount = () => {
+    let sum = 0;
+    cartData.forEach(function (elem) {
+      sum += elem.price;
+    });
+    settotal(sum);
   };
 
   const addToCart = (idx) => {
@@ -39,9 +48,14 @@ const App = () => {
     setcartData(copyData);
   };
 
-  useEffect(() => {
-    GetData();
-  }, []);
+  useEffect(
+    () => {
+      GetData();
+      totalamount();
+    },
+    [],
+    [cartData]
+  );
 
   return (
     <div className="p-4">
@@ -66,8 +80,8 @@ const App = () => {
                     src={elem.image}
                     alt=""
                   />
+                  <h4 className="mt-4">₹{elem.price}</h4>
                   <h1 className="h-18 overflow-hidden">{elem.title}</h1>
-
                   <button
                     onClick={() => {
                       addToCart(idx);
@@ -91,14 +105,17 @@ const App = () => {
             <h1 className="text-xl mx-auto mt-2.5">Loading ...</h1>
           )}
         </div>
-        <div  className="w-[35%] h-screen overflow-y-auto shadow-xl  rounded-xl p-2">
+        <div className="w-[35%] h-screen overflow-y-auto shadow-xl  rounded-xl p-2">
           <h1 className="text-lg text-center mb-5 ">
             Items count is : {count}
           </h1>
           {cartData.map(function (elem, idx) {
             return (
               <>
-                <div key={idx} className="flex p-2 mb-2 items-center justify-between shadow-sm rounded bg-white gap-4">
+                <div
+                  key={idx}
+                  className="flex p-2 mb-2 items-center justify-between shadow-sm rounded bg-white gap-4"
+                >
                   <div key={idx} className="flex items-center gap-5">
                     <img className="h-14" src={elem.image} alt="" />
                     <h1>{elem.title}</h1>
@@ -113,6 +130,10 @@ const App = () => {
                       Delete
                     </button>
                   </div>
+                </div>
+                <div className="fixed flex w-100 bottom-0 justify-between right-[4%] bg-zinc-100 rounded p-3">
+                  <h2>Total </h2>
+                  <h5>₹ {total}</h5>
                 </div>
               </>
             );
